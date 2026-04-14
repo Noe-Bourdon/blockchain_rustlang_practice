@@ -1,0 +1,2 @@
+# blockchain_rustlang_practice
+Rustでブロックチェーンシミュレーション作成
