@@ -35,6 +35,7 @@ impl Block {
         }
     }
 
+    //　ハッシュの計算
     fn calculate_hash(&mut self) -> String {
         let data = format!(
             "{}{}{}{}{}",
@@ -53,6 +54,8 @@ impl Block {
         hash_str
     }
 }
+
+
 
 fn main() {
     println!("Hello, world!");
