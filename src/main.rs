@@ -39,19 +39,15 @@ impl Block {
     fn calculate_hash(&mut self) -> String {
         let data = format!(
             "{}{}{}{}{}",
-            self.index,
-            &self.previous_hash,
-            self.timestamp,
-            &self.data,
-            self.nonce
+            self.index, &self.previous_hash, self.timestamp, &self.data, self.nonce
         );
 
         let mut hasher = Sha256::new();
         hasher.update(data.as_bytes());
         let result = hasher.finalize();
 
-    let hash_str = format!("{:x}", result);
-    hash_str
+        let hash_str = format!("{:x}", result);
+        hash_str
     }
 
     /// マイニングしてハッシュを決める関数
@@ -72,7 +68,7 @@ impl Block {
                 print!(" Mining in progress...  ");
                 thread::sleep(Duration::from_millis(3000));
                 // 最後のハッシュ
-                println!("calculate_hash: {}",self.hash);
+                println!("calculate_hash: {}", self.hash);
                 break;
             }
             self.nonce += 1;
@@ -89,16 +85,81 @@ impl fmt::Display for Block {
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let datetime = chrono::NaiveDateTime::from_timestamp(self.timestamp as i64, 0);
-        write!(
-            f,
-            "Block {}: {} at {}",
-            self.index, self.data, datetime
-        )
+        write!(f, "Block {}: {} at {}", self.index, self.data, datetime)
     }
 }
 
+struct Blockchain {
+    chain: Vec<Block>,
+}
 
+impl Blockchain {
+    /// ブロックチェーンを初期化する
+    fn new() -> Blockchain {
+        // 一番最初のブロックを作ってチェーンでつなげる
+        let genesis_block = Block::new(0, String::new(), String::from("Genesis Block"));
+        Blockchain {
+            chain: vec![genesis_block],
+        }
+    }
+
+    /// ブロックをチェーンに追加する
+    /// クローンして新しく塗り替える → マイニング計算 → 完成したらチェーンにもう一度入れる
+    fn add_block(&mut self, mut new_block: Block) {
+        let previous_hash = self.chain.last().unwrap().hash.clone();
+        new_block.previous_hash = previous_hash;
+        new_block.mine_block_with_visual_effects();
+        self.chain.push(new_block);
+    }
+
+    /// 現在のチェーンの長さを見る
+    fn get_total_blocks(&self) -> usize {
+        self.chain.len()
+    }
+}
 
 fn main() {
-    println!("Hello, world!");
+    println!(" Welcome to Blockchain Mining Simulator ");
+    println!(" Enter your miner name :");
+    let mut miner_name = String::new();
+
+    std::io::stdin()
+        .read_line(&mut miner_name)
+        .expect(" Failed to read input");
+    miner_name = miner_name.trim().to_string();
+
+    let trader_name = vec!["Bob", "Linda", "Jhon", "Omar", "Eve", "Svetlana", "Jiro"];
+
+    let mut noecoin = Blockchain::new();
+    println!(" minig and simulating transactions");
+
+    let mut sender = miner_name.clone();
+
+    for i in 0..trader_name.len() {
+        println!("Mining block {}...⛏", i + 1);
+        let rescipient = if i < trader_name.len() - 1 {
+            trader_name[i + 1].to_string();
+        } else {
+            miner_name.clone();
+        };
+
+        let transaction = format!("{} and to {}", sender, rescipient);
+
+        let new_block = Block::new((i + 1) as u32, String::new(), transaction.clone());
+
+        noecoin.add_block(new_block);
+        println!(" Transaction {}", transaction);
+
+        sender = rescipient;
+        println!();
+
+        let total_blocks = noecoin.get_total_blocks();
+        println!(" Total blocks added to the blockchain: {}", total_blocks);
+
+        let noecoin_per_block = 137;
+        let noecoin_traded = total_blocks * noecoin_per_block;
+        println!("💸 Total noecoin traded: {}", noecoin_traded);
+
+        
+    }
 }
