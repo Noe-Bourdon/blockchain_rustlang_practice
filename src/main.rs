@@ -35,7 +35,7 @@ impl Block {
         }
     }
 
-    //　ハッシュの計算
+    /// ハッシュの計算
     fn calculate_hash(&mut self) -> String {
         let data = format!(
             "{}{}{}{}{}",
@@ -49,9 +49,51 @@ impl Block {
         let mut hasher = Sha256::new();
         hasher.update(data.as_bytes());
         let result = hasher.finalize();
-        
-        let hash_str = format!("{:x}", result);
-        hash_str
+
+    let hash_str = format!("{:x}", result);
+    hash_str
+    }
+
+    /// マイニングしてハッシュを決める関数
+    fn mine_block_with_visual_effects(&mut self) {
+        let iterations = 0;
+        // PoWの最小実装
+        loop {
+            self.hash = self.calculate_hash();
+            // DIFFICULTYマイニングの難しさを決める数値
+            // ハッシュの先頭が00になたっらマイニング成功
+            if !self.hash.is_empty() && &self.hash[..DIFFICULTY] == "00".repeat(DIFFICULTY) {
+                println!(" Block mined: {}", self.index);
+                break;
+            }
+
+            // マイニング回数100以上試しら強制終了
+            if iterations > 100 {
+                print!(" Mining in progress...  ");
+                thread::sleep(Duration::from_millis(3000));
+                // 最後のハッシュ
+                println!("calculate_hash: {}",self.hash);
+                break;
+            }
+            self.nonce += 1;
+        }
+    }
+}
+
+impl fmt::Display for Block {
+    /// Blockの表示フォーマットの設定
+    /// ```rust
+    /// index{} ブロックの番号
+    /// date{} ブロックに入ってるデータ
+    /// datetime{} そのブロックが作られて日時
+    /// ```
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let datetime = chrono::NaiveDateTime::from_timestamp(self.timestamp as i64, 0);
+        write!(
+            f,
+            "Block {}: {} at {}",
+            self.index, self.data, datetime
+        )
     }
 }
 
