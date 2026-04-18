@@ -4,6 +4,7 @@ use std::thread;
 use std::time::Duration;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+
 // Defin difficulty of the mining
 const DIFFICULTY: usize = 2;
 // Defin the structure of a block in the blockchain
@@ -46,7 +47,7 @@ impl Block {
         hasher.update(data.as_bytes());
         let result = hasher.finalize();
 
-        let hash_str = format!("{:x}", result);
+        let hash_str = format!("{}", result);
         hash_str
     }
 
@@ -121,45 +122,60 @@ impl Blockchain {
 fn main() {
     println!(" Welcome to Blockchain Mining Simulator ");
     println!(" Enter your miner name :");
+    // 空の文字列を作って、入れる箱を用意
     let mut miner_name = String::new();
 
+    // 標準入力
     std::io::stdin()
         .read_line(&mut miner_name)
         .expect(" Failed to read input");
     miner_name = miner_name.trim().to_string();
 
+    // ランダムに取引相手として登場するNPC（仮想トレーダ一覧）
     let trader_name = vec!["Bob", "Linda", "Jhon", "Omar", "Eve", "Svetlana", "Jiro"];
 
+    // 新しいブロックチェーンを作成
     let mut noecoin = Blockchain::new();
     println!(" minig and simulating transactions");
 
+    //　文字列をコピーして、senderに所有権を渡している
     let mut sender = miner_name.clone();
 
     for i in 0..trader_name.len() {
         println!("Mining block {}...⛏", i + 1);
         let rescipient = if i < trader_name.len() - 1 {
+            // トレーダがマイニング成功　→　次のトレーダへ
             trader_name[i + 1].to_string();
         } else {
+            //　失敗・自分がマイニング
             miner_name.clone();
         };
 
+        // トランザクションを作成
         let transaction = format!("{} and to {}", sender, rescipient);
 
+        //　新しいブロック作成
         let new_block = Block::new((i + 1) as u32, String::new(), transaction.clone());
 
+        //　ブロックチェーンに追加
         noecoin.add_block(new_block);
         println!(" Transaction {}", transaction);
 
+        // 送金者の更新（次のループへ）
         sender = rescipient;
         println!();
 
+        //　現在のチェーンの長さを取得
         let total_blocks = noecoin.get_total_blocks();
         println!(" Total blocks added to the blockchain: {}", total_blocks);
 
+        //　報酬計算
         let noecoin_per_block = 137;
         let noecoin_traded = total_blocks * noecoin_per_block;
         println!("💸 Total noecoin traded: {}", noecoin_traded);
 
-        
+        let end_timestamp = SystemTime::now().duration_since(UNIX_EPOCH).expect("Time went backtrawis").as_secs();
+
+        let end_datetime = chrono::DateTime::from_timestamp((end_timestamp) as i64, 0 );
     }
 }
