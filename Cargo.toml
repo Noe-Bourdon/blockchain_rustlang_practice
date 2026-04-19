@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 sha2 = "0.11.0"
 chrono="0.4.35"
+hex = "0.4"
