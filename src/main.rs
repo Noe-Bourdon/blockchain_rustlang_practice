@@ -3,14 +3,13 @@ use std::fmt;
 use std::thread;
 use std::time::Duration;
 use std::time::{SystemTime, UNIX_EPOCH};
-
-
+use hex;
 // Defin difficulty of the mining
 const DIFFICULTY: usize = 2;
 // Defin the structure of a block in the blockchain
 
 // struct and  impl
-struct Block {
+pub struct Block {
     index: u32,            //ブロックの番号
     previous_hash: String, // 前のブロックのハッシュ値
     timestamp: u64,        //ブロックの制作時間
@@ -47,7 +46,9 @@ impl Block {
         hasher.update(data.as_bytes());
         let result = hasher.finalize();
 
-        let hash_str = format!("{}", result);
+       let hex_result = hex::encode(result); 
+
+        let hash_str = format!("{}", hex_result);
         hash_str
     }
 
@@ -143,12 +144,12 @@ fn main() {
 
     for i in 0..trader_name.len() {
         println!("Mining block {}...⛏", i + 1);
-        let rescipient = if i < trader_name.len() - 1 {
+        let rescipient = if i < trader_name.len() - 1 { // String型じゃない
             // トレーダがマイニング成功　→　次のトレーダへ
-            trader_name[i + 1].to_string();
+            trader_name[i + 1].to_string()
         } else {
             //　失敗・自分がマイニング
-            miner_name.clone();
+            miner_name.clone()
         };
 
         // トランザクションを作成
@@ -177,5 +178,6 @@ fn main() {
         let end_timestamp = SystemTime::now().duration_since(UNIX_EPOCH).expect("Time went backtrawis").as_secs();
 
         let end_datetime = chrono::DateTime::from_timestamp((end_timestamp) as i64, 0 );
+        println!(" end datetime {:?}", end_datetime);
     }
 }
