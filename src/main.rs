@@ -54,7 +54,7 @@ impl Block {
 
     /// マイニングしてハッシュを決める関数
     fn mine_block_with_visual_effects(&mut self) {
-        let iterations = 0;
+        let mut iterations = 0;
         // PoWの最小実装
         loop {
             self.hash = self.calculate_hash();
@@ -74,6 +74,7 @@ impl Block {
                 break;
             }
             self.nonce += 1;
+            iterations += 1;
         }
     }
 }
@@ -144,7 +145,7 @@ fn main() {
 
     for i in 0..trader_name.len() {
         println!("Mining block {}...⛏", i + 1);
-        let rescipient = if i < trader_name.len() - 1 { // String型じゃない
+        let rescipient = if i < trader_name.len() - 1 { 
             // トレーダがマイニング成功　→　次のトレーダへ
             trader_name[i + 1].to_string()
         } else {
