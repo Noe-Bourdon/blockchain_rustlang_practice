@@ -4,7 +4,7 @@ use std::thread;
 use std::time::Duration;
 use std::time::{SystemTime, UNIX_EPOCH};
 use hex;
-// Defin difficulty of the mining
+// 採掘の難易度を定義する
 const DIFFICULTY: usize = 2;
 // Defin the structure of a block in the blockchain
 
@@ -172,7 +172,7 @@ fn main() {
         println!(" Total blocks added to the blockchain: {}", total_blocks);
 
         //　報酬計算
-        let noecoin_per_block = 137;
+        let noecoin_per_block = 1150;
         let noecoin_traded = total_blocks * noecoin_per_block;
         println!("💸 Total noecoin traded: {}", noecoin_traded);
 
