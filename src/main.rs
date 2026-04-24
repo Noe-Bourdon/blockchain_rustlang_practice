@@ -10,6 +10,7 @@ const DIFFICULTY: usize = 2;
 // ブロックチェーンにおけるブロックの構造を定義する
 
 // struct and  impl
+#[derive(Debug)]
 pub struct Block {
     index: u32,            //ブロックの番号
     previous_hash: String, // 前のブロックのハッシュ値
@@ -21,7 +22,7 @@ pub struct Block {
 
 impl Block {
     /// ブロックの初期化関数
-    fn new(index: u32, previous_hash: String, data: String) -> Block {
+    pub fn new(index: u32, previous_hash: String, data: String) -> Block {
         let timestamp = SystemTime::now()
             .duration_since(UNIX_EPOCH) //UNIX時間
             .expect("時間がブロックの方向に進んだ")
@@ -54,7 +55,7 @@ impl Block {
     }
 
     /// マイニングしてハッシュを決める関数
-    fn mine_block_with_visual_effects(&mut self) {
+    pub fn mine_block_with_visual_effects(&mut self) {
         let mut iterations = 0;
         // PoWの最小実装
         loop {
@@ -68,7 +69,7 @@ impl Block {
             }
 
             // マイニング回数100以上試しら強制終了
-            if iterations > 100 {
+            if iterations > 256 {
                 print!(" 採掘作業中...  ");
                 thread::sleep(Duration::from_millis(3000));
                 // 最後のハッシュ
@@ -191,9 +192,19 @@ mod tests {
     use super::*;
 
     #[test]
-    fn it_works() {
-        // アサーション
-        
+    //マイニングで00が一致しているか
+    fn test() {
+       let mut block_test = Block::new(0,String::new(), String::new());
+       block_test.mine_block_with_visual_effects();
+        // 00 00 になるには平均256回回せなければならない
+       assert_eq!(&block_test.hash[..DIFFICULTY], "00"); 
     }
+
+    //現在のチェーンの長さが合っているか
+    fn test_add_block() {
+        let test_add_block = Blockchain::new();
+        test_add_block.add_block(new_block);
+    }
+
 }
 
