@@ -4,9 +4,10 @@ use std::thread;
 use std::time::Duration;
 use std::time::{SystemTime, UNIX_EPOCH};
 use hex;
+
 // 採掘の難易度を定義する
 const DIFFICULTY: usize = 2;
-// Defin the structure of a block in the blockchain
+// ブロックチェーンにおけるブロックの構造を定義する
 
 // struct and  impl
 pub struct Block {
@@ -23,7 +24,7 @@ impl Block {
     fn new(index: u32, previous_hash: String, data: String) -> Block {
         let timestamp = SystemTime::now()
             .duration_since(UNIX_EPOCH) //UNIX時間
-            .expect("Time went blockwards")
+            .expect("時間がブロックの方向に進んだ")
             .as_secs(); // 時間を"秒(64)に変換するメソッド
         Block {
             index,
@@ -59,17 +60,19 @@ impl Block {
         loop {
             self.hash = self.calculate_hash();
             // DIFFICULTYマイニングの難しさを決める数値
-            // ハッシュの先頭が00になたっらマイニング成功
-            if !self.hash.is_empty() && &self.hash[..DIFFICULTY] == "00".repeat(DIFFICULTY) {
-                println!(" Block mined: {}", self.index);
+            // ハッシュの先頭が00になたっらマイニング成功    2                         2
+            if !self.hash.is_empty() && &self.hash[..DIFFICULTY] == "0".repeat(DIFFICULTY) { 
+                dbg!("DBG",&self.index);
+                println!(" ブロックマイニング: {}", self.index);
                 break;
             }
 
             // マイニング回数100以上試しら強制終了
             if iterations > 100 {
-                print!(" Mining in progress...  ");
+                print!(" 採掘作業中...  ");
                 thread::sleep(Duration::from_millis(3000));
                 // 最後のハッシュ
+                // dbg!("DBG",&self.hash);
                 println!("calculate_hash: {}", self.hash);
                 break;
             }
@@ -87,7 +90,7 @@ impl fmt::Display for Block {
     /// datetime{} そのブロックが作られて日時
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let datetime = chrono::NaiveDateTime::from_timestamp(self.timestamp as i64, 0);
+        let datetime = chrono::DateTime::from_timestamp(self.timestamp as i64, 0).unwrap();
         write!(f, "Block {}: {} at {}", self.index, self.data, datetime)
     }
 }
@@ -122,15 +125,15 @@ impl Blockchain {
 }
 
 fn main() {
-    println!(" Welcome to Blockchain Mining Simulator ");
-    println!(" Enter your miner name :");
+    println!("ブロックチェーンマイニングシミュレーターへようこそ");
+    println!(" マイナー名を入力してください :");
     // 空の文字列を作って、入れる箱を用意
     let mut miner_name = String::new();
 
     // 標準入力
     std::io::stdin()
         .read_line(&mut miner_name)
-        .expect(" Failed to read input");
+        .expect(" 入力の読み取りに失敗しました");
     miner_name = miner_name.trim().to_string();
 
     // ランダムに取引相手として登場するNPC（仮想トレーダ一覧）
@@ -138,13 +141,13 @@ fn main() {
 
     // 新しいブロックチェーンを作成
     let mut noecoin = Blockchain::new();
-    println!(" minig and simulating transactions");
+    println!(" マイニングとトランザクションのシミュレーション");
 
     //　文字列をコピーして、senderに所有権を渡している
     let mut sender = miner_name.clone();
 
     for i in 0..trader_name.len() {
-        println!("Mining block {}...⛏", i + 1);
+        println!("採掘ブロック {}...⛏", i + 1);
         let rescipient = if i < trader_name.len() - 1 { 
             // トレーダがマイニング成功　→　次のトレーダへ
             trader_name[i + 1].to_string()
@@ -154,14 +157,14 @@ fn main() {
         };
 
         // トランザクションを作成
-        let transaction = format!("{} and to {}", sender, rescipient);
+        let transaction = format!("{} そして {}", sender, rescipient);
 
         //　新しいブロック作成
         let new_block = Block::new((i + 1) as u32, String::new(), transaction.clone());
 
         //　ブロックチェーンに追加
         noecoin.add_block(new_block);
-        println!(" Transaction {}", transaction);
+        println!("取引 {}", transaction);
 
         // 送金者の更新（次のループへ）
         sender = rescipient;
@@ -169,16 +172,28 @@ fn main() {
 
         //　現在のチェーンの長さを取得
         let total_blocks = noecoin.get_total_blocks();
-        println!(" Total blocks added to the blockchain: {}", total_blocks);
+        println!(" ブロックチェーンに追加されたブロックの総数: {}", total_blocks);
 
         //　報酬計算
         let noecoin_per_block = 1150;
         let noecoin_traded = total_blocks * noecoin_per_block;
-        println!("💸 Total noecoin traded: {}", noecoin_traded);
+        println!("💸 取引されたnoecoinの総数: {}", noecoin_traded);
 
         let end_timestamp = SystemTime::now().duration_since(UNIX_EPOCH).expect("Time went backtrawis").as_secs();
 
         let end_datetime = chrono::DateTime::from_timestamp((end_timestamp) as i64, 0 );
-        println!(" end datetime {:?}", end_datetime);
+        println!(" 終了日時 {:?}", end_datetime);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_works() {
+        // アサーション
+        
+    }
+}
+
