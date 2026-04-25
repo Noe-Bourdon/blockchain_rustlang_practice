@@ -96,6 +96,7 @@ impl fmt::Display for Block {
     }
 }
 
+#[derive(Debug)]
 struct Blockchain {
     chain: Vec<Block>,
 }
@@ -192,19 +193,15 @@ mod tests {
     use super::*;
 
     #[test]
-    //マイニングで00が一致しているか
     fn test() {
+        //　チェーンの長さ
+        let test_add_block = Blockchain::new();
+        assert_eq!(test_add_block.get_total_blocks(), 1);
+        //マイニングで00が一致しているか
        let mut block_test = Block::new(0,String::new(), String::new());
        block_test.mine_block_with_visual_effects();
         // 00 00 になるには平均256回回せなければならない
        assert_eq!(&block_test.hash[..DIFFICULTY], "00"); 
     }
-
-    //現在のチェーンの長さが合っているか
-    fn test_add_block() {
-        let test_add_block = Blockchain::new();
-        test_add_block.add_block(new_block);
-    }
-
 }
 
